@@ -1,4 +1,7 @@
 package i2627.trab1.grupo2;
 
-public class Exp {
+public interface Exp {
+    boolean calculate();
+    String toString();
+    Priority getPriority();
 }
