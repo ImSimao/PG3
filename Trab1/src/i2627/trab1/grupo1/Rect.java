@@ -31,7 +31,7 @@ public class Rect {
 
     @Override
     public String toString() {
-        return String.format("(%.1f,%.1f)->(%.1f,%.1f)", x, y, x + w, y + h);
+        return String.format(java.util.Locale.US,"(%.1f,%.1f)->(%.1f,%.1f)", x, y, x + w, y + h);
     }
     
     @Override
