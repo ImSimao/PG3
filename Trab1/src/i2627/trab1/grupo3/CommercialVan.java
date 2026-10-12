@@ -1,6 +1,6 @@
 package i2627.trab1.grupo3;
 
-public class CommercialVan {
+public class CommercialVan extends RentalVehicle {
 
     public static final double BASE_RATE = 0.8;
     public static final double LOAD_FEE_PER_KG = 0.05;
