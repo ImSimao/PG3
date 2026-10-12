@@ -27,7 +27,7 @@ public class Car extends RentalVehicle {
     }
 
     @Override
-    public double calculateRent(long km) {
+    public double calculateRent(long km) {//calcula o valor do aluguer com a expressao no anunciado, se babySeat for TRUE)
         double rent = BASE_RATE * km;
         if (babySeat) {
             rent += BABY_SEAT_FEE;

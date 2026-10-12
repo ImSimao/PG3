@@ -9,7 +9,7 @@ public class CommercialVan extends RentalVehicle {
 
 
     public CommercialVan(int maxLoad) {
-        super("VAN");
+        super("VAN"); // ID String passa a ser VAN no constructor da classe RentalVechicle,
         this.maxLoad = maxLoad;
     }
 
