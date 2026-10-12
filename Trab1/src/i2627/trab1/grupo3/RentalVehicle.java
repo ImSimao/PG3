@@ -7,7 +7,7 @@ public abstract class RentalVehicle implements Comparable<RentalVehicle> {
 
 
     protected RentalVehicle(String id) {
-        this.regId = id + "_" + serialNumberCounter++;
+        this.regId = id + "_" + serialNumberCounter;
         serialNumberCounter++;
         this.kilometers = 0;
     }
