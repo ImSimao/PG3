@@ -30,7 +30,4 @@ public abstract class RentalVehicle implements Comparable<RentalVehicle> {
         return Long.compare(this.kilometers, other.kilometers);
     }
 
-
-
-
 }

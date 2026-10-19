@@ -9,7 +9,9 @@ public class Car extends RentalVehicle {
     private final boolean babySeat;
 
     public Car(int seats, boolean babySeat) {
-        this("CAR", seats, babySeat);
+        super("CAR");
+        this.seatsNumber = seats;
+        this.babySeat = babySeat;
     }
 
     protected Car(String id, int seats, boolean babySeat) {
