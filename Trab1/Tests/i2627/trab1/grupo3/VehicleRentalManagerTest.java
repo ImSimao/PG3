@@ -87,11 +87,30 @@ class VehicleRentalManagerTest {
         assertEquals(0, above2500Load.length);
     }
 
-    @Test
-    void getVehiclesAboveKm() {
         // ToDo by students: Implement this test method to verify the getVehiclesAboveKm method functionality
         //  1. Add 100, 200 and 300 kilometers to first three vehicles, in this order, before testing getVehiclesAboveKm
         //  2. Test getVehiclesAboveKm method with 100, 299 and 500 kilometers, and assert the returned vehicles are correct
+    @Test
+    void getVehiclesAboveKm() {
+        // 1-
+        VehicleRentalManager manager = new VehicleRentalManager();
+        assertDoesNotThrow(() -> manager.addAvailableVehicles(vehicles));
+
+        vehicles[0].addKilometers(100);
+        vehicles[1].addKilometers(200);
+        vehicles[2].addKilometers(300);
+
+        // 2-
+        RentalVehicle[] above100 = manager.getVehiclesAboveKm(100);
+        assertArrayEquals(new RentalVehicle[]{vehicles[1], vehicles[2]}, above100);
+
+        RentalVehicle[] above299 = manager.getVehiclesAboveKm(299);
+        assertArrayEquals(new RentalVehicle[]{vehicles[2]}, above299);
+
+        RentalVehicle[] above500 = manager.getVehiclesAboveKm(500);
+        assertEquals(0, above500.length);   //above500 é um array do tipo RentalVehicle, cada elemento desse array é um RentalVehicle, logo com .length devolve o tamanho do array em int para comparar com o valor int 0.
+
+
     }
 
 }
