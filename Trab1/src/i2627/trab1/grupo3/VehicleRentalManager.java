@@ -27,6 +27,7 @@ public final class VehicleRentalManager {
     }
 
     public double returnVehicle(RentalVehicle vehicle, long km) throws VehicleException {
+        if (km<0) throw new VehicleException("Invalid km", vehicle);
         if (!rentedVehicles.remove(vehicle)) {
             throw new VehicleException("Vehicle was not rented", vehicle);
         }

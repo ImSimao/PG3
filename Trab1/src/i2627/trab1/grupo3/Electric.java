@@ -9,7 +9,7 @@ public class Electric extends Car {
 
     public Electric(int seats, boolean babySeat, int batLevel) {
         super("ELECTRIC", seats, babySeat);
-        this.batteryLevel = batLevel;
+        setBatteryLevel(batLevel);
     }
 
     public int getBatteryLevel() {
