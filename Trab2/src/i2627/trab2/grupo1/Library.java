@@ -1,7 +1,6 @@
 package i2627.trab2.grupo1;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -45,7 +44,7 @@ public class Library {
     }
 
     // Campo correspondente ao catálogo da biblioteca.
-    // ToDo: name it catalog
+    private final Map<String, CatalogEntry> catalog = new HashMap<>();
 
     /**
      * Adiciona um livro à biblioteca. Se o livro já existir, atualiza a quantidade disponível; se não existir, cria uma entrada no catálogo.
@@ -54,7 +53,13 @@ public class Library {
      * @throws LibraryException Se a quantidade de livros especificada for inferior ou igual a 0
      */
     public void addBook(Book book, int quantity) {
-        // ToDo
+        if (quantity <= 0) {
+            throw new LibraryException("A quantidade tem de ser superior a 0");
+        }
+        catalog.merge(book.isbn(), new CatalogEntry(book, quantity), (existing, added) -> {
+            existing.setQuantity(existing.getQuantity() + added.getQuantity());
+            return existing;
+        });
     }
 
     /**
@@ -62,7 +67,9 @@ public class Library {
      * @param books Os livros a serem adicionados.
      */
     public void addAllBooks(Book... books) {
-        // ToDo
+        for (Book book : books) {
+            addBook(book, 1);
+        }
     }
 
     /**
@@ -72,7 +79,16 @@ public class Library {
      * @throws LibraryException Se o livro com o ISBN especificado não for encontrado na biblioteca.
      */
     public Book removeBook(String isbn) {
-        // ToDo
+        CatalogEntry entry = catalog.get(isbn);
+        if (entry == null) {
+            throw new LibraryException("Livro não encontrado: " + isbn);
+        }
+        if (entry.getQuantity() > 1) {
+            entry.setQuantity(entry.getQuantity() - 1);
+        } else {
+            catalog.remove(isbn);
+        }
+        return entry.getBook();
     }
 
     /**
@@ -81,7 +97,9 @@ public class Library {
      * @throws LibraryException Se o livro com o ISBN especificado não for encontrado na biblioteca.
      */
     public void deleteBook(String isbn) {
-        // ToDo
+        if (catalog.remove(isbn) == null) {
+            throw new LibraryException("Livro não encontrado: " + isbn);
+        }
     }
 
     /**
@@ -91,7 +109,11 @@ public class Library {
      * @throws LibraryException Se o livro com o ISBN especificado não for encontrado na biblioteca.
      */
     public Book getBookByISBN(String isbn) {
-        // ToDo
+        CatalogEntry entry = catalog.get(isbn);
+        if (entry == null) {
+            throw new LibraryException("Livro não encontrado: " + isbn);
+        }
+        return entry.getBook();
     }
 
     /**
@@ -100,7 +122,8 @@ public class Library {
      * @return A quantidade disponível do livro. Retorna 0 se o livro não for encontrado na biblioteca.
      */
     public int getBookQuantity(String isbn) {
-        // ToDo
+        CatalogEntry entry = catalog.get(isbn);
+        return entry == null ? 0 : entry.getQuantity();
     }
 
     /**
@@ -109,7 +132,10 @@ public class Library {
      * @return A quantidade total de livros disponíveis que atendem aos critérios.
      */
     private int getBooksQuantity(Predicate<CatalogEntry> filter) {
-        // ToDo
+        return catalog.values().stream()
+                .filter(filter)
+                .mapToInt(CatalogEntry::getQuantity)
+                .sum();
     }
 
     /**
@@ -119,7 +145,9 @@ public class Library {
      * @return A quantidade total de livros disponíveis com o título e autor especificados.
      */
     public int getBooksQuantity(String title, String author) {
-        // ToDo
+        return getBooksQuantity(entry ->
+                entry.getBook().title().equalsIgnoreCase(title)
+                        && entry.getBook().author().equalsIgnoreCase(author));
     }
 
     /**
@@ -129,7 +157,9 @@ public class Library {
      * @return A quantidade total de livros disponíveis com o ano e editor especificados.
      */
     public int getBooksQuantity(int year, String editor) {
-        // ToDo
+        return getBooksQuantity(entry ->
+                entry.getBook().year() == year
+                        && entry.getBook().editor().equalsIgnoreCase(editor));
     }
 
     /**
@@ -138,14 +168,17 @@ public class Library {
      * @return A lista de livros que atendem aos critérios.
      */
     private List<Book> listBooks(Predicate<CatalogEntry> filter) {
-        // ToDo
+        return catalog.values().stream()
+                .filter(filter)
+                .map(CatalogEntry::getBook)
+                .toList();
     }
 
     /**
      * Retorna lista de todos os livros disponíveis na biblioteca, independentemente da categoria.
      */
     public List<Book> listAllBooks() {
-        // ToDo
+        return listBooks(entry -> true);
     }
 
     /**
@@ -154,7 +187,7 @@ public class Library {
      * @return A lista de livros da categoria especificada.
      */
     public List<Book> listBooksByGenre(BookGenre genre) {
-        // ToDo
+        return listBooks(entry -> entry.getBook().genre() == genre);
     }
 
     /**
@@ -164,7 +197,8 @@ public class Library {
      * @return A lista de livros cujo título contenha a palavra-chave especificada.
      */
     public List<Book> listBooksByTitleKeyword(String keyword) {
-        // ToDo
+        String normalized = keyword.toLowerCase(Locale.ROOT);
+        return listBooks(entry -> entry.getBook().title().toLowerCase(Locale.ROOT).contains(normalized));
     }
 
     /**
@@ -174,7 +208,11 @@ public class Library {
      * @return A lista de livros que atendem aos critérios.
      */
     private List<Book> listBooks(Predicate<CatalogEntry> filter, Comparator<CatalogEntry> sorter) {
-        // ToDo
+        return catalog.values().stream()
+                .filter(filter)
+                .sorted(sorter)
+                .map(CatalogEntry::getBook)
+                .toList();
     }
 
     /**
@@ -185,7 +223,11 @@ public class Library {
      * @return A lista de livros com o título e autor especificados, ordenados por ano de publicação.
      */
     public List<Book> listBooksByTitleAndAuthor(String title, String author) {
-        // ToDo
+        return listBooks(
+                entry -> entry.getBook().title().equalsIgnoreCase(title)
+                        && entry.getBook().author().equalsIgnoreCase(author),
+                Comparator.comparingInt((CatalogEntry entry) -> entry.getBook().year()).reversed()
+        );
     }
 
     /**
@@ -194,7 +236,29 @@ public class Library {
      * @return A lista de livros do ano especificado, ordenados por autor
      */
     public List<Book> listBooksByYear(int year) {
-        // ToDo
+        return listBooks(
+                entry -> entry.getBook().year() == year,
+                Comparator.comparing((CatalogEntry entry) -> entry.getBook().author())
+                        .thenComparing(entry -> entry.getBook().title())
+        );
+    }
+
+    /**
+     * Agrupa as entradas do catálogo pela chave extraída de cada livro.
+     * @param groupedBooks mapa onde o resultado é acumulado
+     * @param classifier função que obtém a chave de agrupamento a partir do livro
+     * @param collectionSupplier fornece a coleção vazia de cada grupo
+     * @return o mapa recebido, preenchido com os livros agrupados
+     */
+    private <K, C extends Collection<Book>> Map<K, C> groupBooks(
+            Map<K, C> groupedBooks,
+            Function<Book, K> classifier,
+            Supplier<C> collectionSupplier) {
+        for (CatalogEntry entry : catalog.values()) {
+            Book book = entry.getBook();
+            groupedBooks.computeIfAbsent(classifier.apply(book), key -> collectionSupplier.get()).add(book);
+        }
+        return groupedBooks;
     }
 
     /**
@@ -202,25 +266,19 @@ public class Library {
      * @return Um mapa onde a chave é o género do livro e o valor é a lista de livros desse gênero.
      */
     public Map<BookGenre, List<Book>> groupBooksByGenre() {
-        Map<BookGenre, List<Book>> groupedBooks = new HashMap<>();
-        for (CatalogEntry entry: catalog.values()) {
-            Book book = entry.getBook();
-            groupedBooks.computeIfAbsent(book.genre(), _ -> new ArrayList<>()).add(book);
-        }
-        return groupedBooks;
+        return groupBooks(new HashMap<>(), Book::genre, ArrayList::new);
     }
 
-   /**
-    * Agrupa os livros por autor, listando os autores em ordem alfabética (sem distinguir maiúsculas de minúsculas) e, para cada autor, 
-    * lista os livros publicados por ele, ordenados por ano de publicação, do mais recente para o mais antigo.
-    * @return Um mapa onde a chave é o autor do livro e o valor é a fila de prioridade de livros desse autor.
-    */
-   public Map<String, PriorityQueue<Book>> groupBooksByAuthor() {
-       Map<String, PriorityQueue<Book>> groupedBooks = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-       for (CatalogEntry entry: catalog.values()) {
-           Book book = entry.getBook();
-           groupedBooks.computeIfAbsent(book.author(), _ -> new PriorityQueue<>(Comparator.comparingInt(Book::year).reversed())).add(book);
-       }
-       return groupedBooks;
-   }
+    /**
+     * Agrupa os livros por autor, listando os autores em ordem alfabética (sem distinguir maiúsculas de minúsculas) e, para cada autor,
+     * lista os livros publicados por ele, ordenados por ano de publicação, do mais recente para o mais antigo.
+     * @return Um mapa onde a chave é o autor do livro e o valor é a fila de prioridade de livros desse autor.
+     */
+    public Map<String, PriorityQueue<Book>> groupBooksByAuthor() {
+        return groupBooks(
+                new TreeMap<>(String.CASE_INSENSITIVE_ORDER),
+                Book::author,
+                () -> new PriorityQueue<>(Comparator.comparingInt(Book::year).reversed())
+        );
+    }
 }

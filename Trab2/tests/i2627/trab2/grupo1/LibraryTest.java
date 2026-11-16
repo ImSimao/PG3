@@ -213,6 +213,27 @@ class LibraryTest {
      */
     @Test
     void groupBooksByAuthor() {
-        // ToDo
+        library.addAllBooks(books);
+        Map<String, PriorityQueue<Book>> groupedBooks = library.groupBooksByAuthor();
+        String[] previousAuthor = {null};
+        int[] total = {0};
+
+        groupedBooks.forEach((author, authorBooks) -> {
+            if (previousAuthor[0] != null) {
+                assertTrue(String.CASE_INSENSITIVE_ORDER.compare(previousAuthor[0], author) < 0);
+            }
+            previousAuthor[0] = author;
+
+            int previousYear = Integer.MAX_VALUE;
+            while (!authorBooks.isEmpty()) {
+                Book book = authorBooks.poll();
+                assertTrue(author.equalsIgnoreCase(book.author()));
+                assertTrue(book.year() <= previousYear);
+                previousYear = book.year();
+                total[0]++;
+            }
+        });
+
+        assertEquals(books.length, total[0]);
     }
 }
